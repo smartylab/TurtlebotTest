@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:plnk="http://docs.oasis-open.org/wsbpel/2.0/plnktype" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="kr.co.smartlab" xmlns:vprop="http://docs.oasis-open.org/wsbpel/2.0/varprop" xmlns:wsdl="http://smartylab.co.kr/products/op/adapter" name="TurtlebotTest" targetNamespace="kr.co.smartlab" xmlns:p="http://www.w3.org/2001/XMLSchema">
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     TYPE DEFINITION - List of types participating in this BPEL process 
+     The BPEL Designer will generate default request and response types
+     but you can define or import any XML Schema type and use them as part 
+     of the message types.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="ConcertAdapterPLT">
+    <plnk:role name="ConvertAdapterPLTRole" portType="wsdl:concert_adapter_soap_serverPortType"/>
+  </plnk:partnerLinkType>
+    <import location="concert_adapter.wsdl" namespace="http://smartylab.co.kr/products/op/adapter"/>
+    <types>
+        <schema xmlns="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="kr.co.smartlab">
+
+            <element name="TurtlebotTestRequest">
+                <complexType>
+                    <sequence>
+                        <element name="input" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
+            <element name="TurtlebotTestResponse">
+                <complexType>
+                    <sequence>
+                        <element name="result" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+        
+            <complexType name="message">
+            	<sequence>
+            		<element name="linear" type="tns:linear"></element>
+            		<element name="angular" type="tns:angular"></element>
+            	</sequence>
+            </complexType>
+            
+            <complexType name="linear">
+            	<sequence>
+            		<element name="x" type="float"></element>
+            		<element name="y" type="float"></element>
+            		<element name="z" type="float"></element>
+            	</sequence>
+            </complexType>
+
+            <complexType name="angular">
+            	<sequence>
+            		<element name="x" type="float"></element>
+            		<element name="y" type="float"></element>
+            		<element name="z" type="float"></element>
+            	</sequence>
+            </complexType>
+        
+            <element name="move">
+            	<complexType>
+            		<sequence>
+            			<element name="topic_name" type="string"></element>
+            			<element name="message" type="tns:message"></element>
+            		</sequence>
+            	</complexType>
+            </element>
+            <element name="moveResponse">
+            	<complexType>
+            		<sequence>
+            			<element name="out" type="string"></element>
+            		</sequence>
+            	</complexType>
+            </element>
+        </schema>
+    </types>
+
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     MESSAGE TYPE DEFINITION - Definition of the message types used as 
+     part of the port type defintions
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <message name="TurtlebotTestRequestMessage">
+        <part element="tns:TurtlebotTestRequest" name="payload" />
+    </message>
+    <message name="TurtlebotTestResponseMessage">
+        <part element="tns:TurtlebotTestResponse" name="payload"/>
+    </message>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PORT TYPE DEFINITION - A port type groups a set of operations into
+     a logical service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+
+    <!-- portType implemented by the TurtlebotTest BPEL process -->
+    <message name="moveRequest">
+    	<part name="parameters" element="tns:move"></part>
+    </message>
+    <message name="moveResponse">
+    	<part name="parameters" element="tns:moveResponse"></part>
+    </message>
+    <portType name="TurtlebotTest">
+        <operation name="process">
+            <input message="tns:TurtlebotTestRequestMessage"/>
+            <output message="tns:TurtlebotTestResponseMessage"/>
+        </operation>
+        <operation name="move">
+        	<input message="tns:moveRequest"></input>
+        	<output message="tns:moveResponse"></output>
+        </operation>
+    </portType>   
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     PARTNER LINK TYPE DEFINITION
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->    
+    <plnk:partnerLinkType name="TurtlebotTest">
+        <plnk:role name="TurtlebotTestProvider" portType="tns:TurtlebotTest"/>
+    </plnk:partnerLinkType>
+    
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     BINDING DEFINITION - Defines the message format and protocol details
+     for a web service.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <binding name="TurtlebotTestBinding" type="tns:TurtlebotTest">
+    	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    	<operation name="process">
+    		<soap:operation soapAction="kr.co.smartlab/process"/>
+    		<input>
+    			<soap:body use="literal"/>
+    		</input>
+    		<output>
+    			<soap:body use="literal"/>
+    		</output>
+    	</operation>
+    	<operation name="move">
+    		<soap:operation soapAction="kr.co.smartlab/move"/>
+    		<input>
+    			<soap:body use="literal"/>
+    		</input>
+    		<output>
+    			<soap:body use="literal"/>
+    		</output>
+    	</operation>
+    </binding>
+
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     SERVICE DEFINITION - A service groups a set of ports into
+     a service unit.
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <service name="TurtlebotTestService">
+    	<port binding="tns:TurtlebotTestBinding" name="TurtlebotTestPort">
+    		<soap:address location="http://localhost:8080/ode/processes/TurtlebotTest"/>
+    	</port>
+    </service>
+</definitions>
